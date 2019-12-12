@@ -18,8 +18,10 @@ namespace Hopper {
         private const string TAG_ENEMY = "enemy";
         private const string TAG_GRASS_PLAIN = "grass_plain";
         private const string TAG_ROAD_PLAIN = "road_plain";
+        private const string TAG_FOOTPATH_PLAIN = "footpath";
         private const string TAG_OBSTACLE = "obstacle";
         private const string TAG_BOUNDARY = "boundary";
+        private const string TAG_TRAIN_TRACK = "boundary";
 
         private bool _isMovingUp, _isMovingDown, _isMovingLeft, _isMovingRight;
         private bool _isDead;
@@ -27,7 +29,6 @@ namespace Hopper {
         private bool _hasGameStarted;
 
         private float _midwayPoint;
-        private float _initialYPos;
         private float _lastYPos;
         
         private int _characterMovedAhead = -3;
@@ -37,10 +38,6 @@ namespace Hopper {
         private Vector3 _finalPosition;
 
         private Movement _movementType;
-
-        private void Awake() {
-            _initialYPos = transform.position.y;
-        }
 
         private void Update() {
             if (_isDead || !_hasGameStarted) {
@@ -54,8 +51,7 @@ namespace Hopper {
 
             MoveCharacters();
         }
-
-
+        
         private bool IsCharacterMoving() {
             return _isMovingUp || _isMovingDown || _isMovingLeft || _isMovingRight;
         }
@@ -198,8 +194,8 @@ namespace Hopper {
 
             RotateCharacter(0);
 
-            if (_characterMovedAhead == 9) {
-                HopperGameManager.GetInstance().AddNextScenePrefab();
+            if (_characterMovedAhead == HopperGameManager.GetInstance()?.GetCurrentSceneChildCount()) {
+                HopperGameManager.GetInstance()?.AddNextScenePrefab();
                 _characterMovedAhead = 0;
             }
         }
@@ -255,8 +251,14 @@ namespace Hopper {
                 if (_isDead) {
                     return;
                 }
-                SetDeadState();
+                SetDeadState(other.GetComponent<MoveVehicle>().isLeft, false);
             }
+            
+            if (other.gameObject.CompareTag(TAG_TRAIN_TRACK)) {
+                Debug.Log("At rail track");
+                _lastYPos = _finalPosition.y;
+                _finalPosition.y = 0.5f;
+            } 
             
             if (other.gameObject.CompareTag(TAG_OBSTACLE)) {
 
@@ -286,38 +288,41 @@ namespace Hopper {
                         break;
                 }
                
-            } else if (other.gameObject.CompareTag(TAG_GRASS_PLAIN)) {
+            } else if (other.gameObject.CompareTag(TAG_GRASS_PLAIN) || other.gameObject.CompareTag(TAG_FOOTPATH_PLAIN)) {
                 _lastYPos = _finalPosition.y;
-                _finalPosition.y = 2.0f;
-                Debug.Log("Character is on the grass");
+                _finalPosition.y = 1.3f;
                 
             } else if (other.gameObject.CompareTag(TAG_ROAD_PLAIN)) {
                 _lastYPos = _finalPosition.y;
                 _finalPosition.y = 1.0f;
-                Debug.Log("Character is on the road");
                 
             } else if (other.gameObject.CompareTag(TAG_BOUNDARY)) {
-                Debug.Log("Character is at the boundary. Can't move further");
                 switch (_movementType) {
                     case Movement.Left :
                         _isMovingLeft = false;
-                        transform.position = new Vector3(transform.position.x , _initialYPos, transform.position.z - 2.0f);
+                        transform.position = new Vector3(transform.position.x , _finalPosition.y, transform.position.z - 2.0f);
                         break;
                         
                     case Movement.Right :
                         _isMovingRight = false;
-                        transform.position = new Vector3(transform.position.x, _initialYPos, transform.position.z + 2.0f);
+                        transform.position = new Vector3(transform.position.x, _finalPosition.y, transform.position.z + 2.0f);
                         break;
                     }
-            }
+            } 
         }
 
-        public void SetDeadState() {
+        public void SetDeadState(bool isLeft, bool isCamera) {
+            Debug.Log("isLeft :" + isLeft + " isCamera : " + isCamera);
             _isDead = true;
             cameraMovement.SetCameraMovement(false);
             Debug.Log("Character is dead");
             playerMesh.localScale = new Vector3(playerMesh.localScale.x * 1.5f , 0.1f, playerMesh.localScale.z * 1.5f);
+            playerMesh.eulerAngles = new Vector3(-2.5f, isLeft ? 180 : 0, 180);
             transform.position = new Vector3(transform.position.x, _finalPosition.y, transform.position.z);
+
+            if (isCamera) {
+                playerMesh.eulerAngles = new Vector3(-2.5f, 90, 180);
+            }
             UiScreenManager.GetInstance().SetGameOverScreen();
         }
 

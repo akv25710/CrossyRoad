@@ -24,21 +24,29 @@ namespace Hopper {
             }
 
             if (transform.position.x > character.transform.position.x + _initialXPosCamera + cameraXOffset) {
-                character.SetDeadState();
+                character.SetDeadState(false, false);
                 return;
             }
             
             Vector3 pos = character.transform.position + _offSet;
 
-            if (transform.position.x < pos.x  - maxCameraDistance) {
-                transform.position += new Vector3(4 * speed * Time.deltaTime, 0, 0);
+            if (transform.position.x < pos.x  - 1.5 * maxCameraDistance) {
+                transform.position += new Vector3(8 * speed * Time.deltaTime, 0, 0);
+            } else if (transform.position.x < pos.x  -  maxCameraDistance) {
+                transform.position += new Vector3( 4 * speed * Time.deltaTime, 0, 0);
             } else if (transform.position.x < pos.x) {
                 transform.position += new Vector3(speed * Time.deltaTime, 0, 0);
             } else {
                 transform.position += new Vector3(speed/3 * Time.deltaTime, 0 , 0);
             }
+
+            if (transform.position.z - pos.z > 0.5f) {
+                transform.position -= new Vector3(0,0,speed*Time.deltaTime);
+            } else if (pos.z - transform.position.z > 0.5f) {
+                transform.position += new Vector3(0,0,speed*Time.deltaTime);
+            } 
             
-            transform.position = new Vector3(transform.position.x, transform.position.y, pos.z);
+           // transform.position = new Vector3(transform.position.x, transform.position.y, pos.z);
         }
         
         public void SetCameraMovement(bool enableCameraMovement) {

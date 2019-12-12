@@ -9,6 +9,8 @@ namespace Hopper {
     
         [SerializeField] private Text gameScoreText;
         [SerializeField] private Text highestScoreText;
+        [SerializeField] private Text startGameText;
+        [SerializeField] private Text startGameTextShadow;
         [SerializeField] private Button startGame;
         [SerializeField] private GameObject gameOver;
         [SerializeField] private CharacterMovement character;
@@ -39,7 +41,8 @@ namespace Hopper {
             SetHighestScore();
             
             startGame.gameObject.SetActive(true);
-            startGame.GetComponent<Text>().text = "PLAY AGAIN";
+            startGameText.text = "PLAY AGAIN";
+            startGameTextShadow.text = "PLAY AGAIN";
             startGame.onClick.AddListener(() => SceneManager.LoadScene("HopperGameScene"));
         }
 
@@ -58,7 +61,8 @@ namespace Hopper {
 
         public void SetStartGameButton() {
             startGame.gameObject.SetActive(true);
-            startGame.GetComponent<Text>().text = "START GAME";
+            startGameText.text = "START GAME";
+            startGameTextShadow.text = "START GAME";
             startGame.onClick.RemoveAllListeners();
             startGame.onClick.AddListener(() => {
                 startGame.gameObject.SetActive(false);
@@ -68,7 +72,7 @@ namespace Hopper {
         }
         
         public void SetScoreText(int score) {
-            gameScoreText.text = "Score : " + score;
+            gameScoreText.text =  score.ToString();
         }
         
         public void SetStartScreen() {

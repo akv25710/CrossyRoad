@@ -24,7 +24,7 @@ namespace Hopper {
             } else {
                 Debug.LogWarning("Another instance of vehicles pool present");
             }
-            _vehicleQueue = new Queue<GameObject>();
+            _vehicleQueue = new Queue<GameObject>(); 
             _thelaQueue = new Queue<GameObject>();
             _trainQueue = new Queue<GameObject>();
         }
@@ -35,8 +35,6 @@ namespace Hopper {
                 case VehicleType.Train:
                     if (_trainQueue.Count == 0) {
                         GameObject poolObject = Instantiate(trainPrefab[Random.Range(0, trainPrefab.Count)], transform);
-                        poolObject.transform.position = Vector3.zero;
-                        poolObject.transform.rotation = Quaternion.identity;
                         poolObject.SetActive(false);
                         _trainQueue.Enqueue(poolObject);
                     }
@@ -45,8 +43,6 @@ namespace Hopper {
                 case VehicleType.Thela:
                     if (_thelaQueue.Count == 0) {
                         GameObject poolObject = Instantiate(thelaPrefab[Random.Range(0, thelaPrefab.Count)], transform);
-                        poolObject.transform.position = Vector3.zero;
-                        poolObject.transform.rotation = Quaternion.identity;
                         poolObject.SetActive(false);
                         _thelaQueue.Enqueue(poolObject);
                     }
@@ -55,14 +51,11 @@ namespace Hopper {
                 case VehicleType.Vehicle:
                     if (_vehicleQueue.Count == 0) {
                         GameObject poolObject = Instantiate(vehiclesPrefab[Random.Range(0, vehiclesPrefab.Count)], transform);
-                        poolObject.transform.position = Vector3.zero;
-                        poolObject.transform.rotation = Quaternion.identity;
                         poolObject.SetActive(false);
                         _vehicleQueue.Enqueue(poolObject);
                     }
                     return _vehicleQueue.Dequeue();
             }
-            Debug.Log("No prefab of type present" + type);
             return null;
         }
 

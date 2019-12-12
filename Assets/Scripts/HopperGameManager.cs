@@ -10,7 +10,6 @@ namespace Hopper {
         [SerializeField] private Vector3 initialPosition;
 
         private List<Transform> _prefabCollection = new List<Transform>();
-        private float _prefabSize = 49.5f;
         private Vector3 _lastPosition;
 
         private int _currentScore;
@@ -42,22 +41,25 @@ namespace Hopper {
         }
 
         public void AddNextScenePrefab() {
-            int prefabNum = Random.Range(0, scenePrefabs.Count);
-
             if (_prefabCollection.Count > 0) {
-                var lastItemPositionX =
-                    _prefabCollection[_prefabCollection.Count - 1].transform.position.x;
-                _lastPosition = new Vector3(lastItemPositionX + _prefabSize, 0, 0);
+                var lastItem =
+                    _prefabCollection[_prefabCollection.Count - 1];
+                _lastPosition = new Vector3(lastItem.transform.position.x + lastItem.GetComponent<SceneDescription>().GetSceneLength(), 0, 0);
             }
-
-            var nextPrefab = Instantiate(scenePrefabs[prefabNum], _lastPosition, Quaternion.identity, transform);
+            
+            int maxSceneRange = 3;
+            
+            if (_currentLevel > 2) {
+                maxSceneRange = scenePrefabs.Count;
+            }
+            var nextPrefab = Instantiate(scenePrefabs[Random.Range(0, maxSceneRange)], _lastPosition, Quaternion.identity, transform);
             _prefabCollection.Add(nextPrefab.transform);
 
-            if (_prefabCollection.Count > 10) {
-                var sceneObj = _prefabCollection[0];
-                _prefabCollection.RemoveAt(0);
-                Destroy(sceneObj.gameObject);
-            }
+            // if (_prefabCollection.Count > 10) {
+            //     var sceneObj = _prefabCollection[0];
+            //     _prefabCollection.RemoveAt(0);
+            //     Destroy(sceneObj.gameObject);
+            // }
             
             IncreaseLevel();
         }
@@ -77,6 +79,9 @@ namespace Hopper {
         private void DecreaseLevel() => _currentLevel--;
         
         public int GetCurrentLevel() => _currentLevel;
+
+        public int GetCurrentSceneChildCount() =>
+            _prefabCollection[GetCurrentLevel()].GetComponent<SceneDescription>().GetChildCount();
 
     }
 }
